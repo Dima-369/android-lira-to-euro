@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.util.Locale
 
+private val selectedLabelColor = TailwindCssColors.violet700
+
 @Composable
 fun CalculatorScreen(modifier: Modifier = Modifier) {
     var input by remember { mutableStateOf("") }
@@ -38,49 +40,44 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.Start
         ) {
-            val selectedLabelColor = TailwindCssColors.violet700
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { isLiraSelected = true },
-                verticalAlignment = Alignment.CenterVertically
+                    .clickable { isLiraSelected = true }
+                    .padding(16.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "Lira, TRY, TL, ₺",
-                        fontSize = 40.sp,
-                        textAlign = TextAlign.Start,
-                        color = if (isLiraSelected) selectedLabelColor else MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    Text(
-                        text = input.ifEmpty { "0" },
-                        fontSize = 32.sp,
-                        textAlign = TextAlign.Start,
-                        color = if (input.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                }
+                Text(
+                    text = "Lira, TRY, TL, ₺",
+                    fontSize = 40.sp,
+                    textAlign = TextAlign.Start,
+                    color = if (isLiraSelected) selectedLabelColor else MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Text(
+                    text = input.ifEmpty { "0" },
+                    fontSize = 32.sp,
+                    textAlign = TextAlign.Start,
+                    color = if (input.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
             }
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { 
-                        if (isLiraSelected && input.isNotEmpty()) {
-                            try {
-                                val value = input.toDouble()
-                                val euro = value / 41.6
-                                input = String.format(Locale.US, "%.2f", euro)
-                            } catch (e: NumberFormatException) {
-                                // Keep the current input if conversion fails
-                            }
+                    .clickable {
+                        if (!isLiraSelected) {
+                            /*
+                                                        try {
+                                                            val value = input.toDouble()
+                                                            val lira = value * 41.6
+                                                            input = String.format(Locale.US, "%.2f", lira)
+                                                        } catch (e: NumberFormatException) {
+                                                            // Keep the current input if conversion fails
+                                                        }
+                            */
                         }
-                        isLiraSelected = false 
+                        isLiraSelected = false
                     },
                 verticalAlignment = Alignment.CenterVertically
             ) {
