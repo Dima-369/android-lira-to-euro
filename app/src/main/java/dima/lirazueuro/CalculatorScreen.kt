@@ -31,8 +31,7 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
 
     Column(
         modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
+            .fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column(
@@ -46,7 +45,11 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                     .clickable { isLiraSelected = true },
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
                     Text(
                         text = "Lira, TRY, TL, ₺",
                         fontSize = 40.sp,
@@ -67,7 +70,6 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp)
                     .clickable { 
                         if (isLiraSelected && input.isNotEmpty()) {
                             try {
@@ -82,7 +84,11 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                     },
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
                     Text(
                         text = "Euro, €",
                         fontSize = 40.sp,
@@ -114,7 +120,11 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
             }
         }
 
-        Column(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
             Button(
                 onClick = { input = "" },
                 modifier = Modifier
