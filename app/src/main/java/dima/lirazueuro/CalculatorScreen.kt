@@ -53,7 +53,7 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                     .testTag("lira_section")
             ) {
                 Text(
-                    text = "Lira, TRY, TL, ₺",
+                    text = "Lira, TRY, TL",
                     fontSize = 40.sp,
                     textAlign = TextAlign.Start,
                     color = if (state.isLiraSelected) selectedLabelColor else MaterialTheme.colorScheme.onSurface,
@@ -62,7 +62,7 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                         .testTag("lira_label")
                 )
                 Text(
-                    text = state.liraAmount.ifEmpty { "0" },
+                    text = state.liraAmount.ifEmpty { "0" } + " ₺",
                     fontSize = 32.sp,
                     textAlign = TextAlign.Start,
                     color = if (state.liraAmount.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
@@ -85,7 +85,7 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "Euro, €",
+                        text = "Euro",
                         fontSize = 40.sp,
                         textAlign = TextAlign.Start,
                         color = if (!state.isLiraSelected) selectedLabelColor else MaterialTheme.colorScheme.onSurface,
@@ -94,7 +94,7 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                             .testTag("euro_label")
                     )
                     Text(
-                        text = state.euroAmount.ifEmpty { "0" },
+                        text = state.euroAmount.ifEmpty { "0" } + " €",
                         fontSize = 32.sp,
                         textAlign = TextAlign.Start,
                         color = if (state.euroAmount.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
