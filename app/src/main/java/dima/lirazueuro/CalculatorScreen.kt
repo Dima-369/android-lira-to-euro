@@ -13,8 +13,10 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -37,11 +39,12 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.Start
         ) {
+            val selectedLabelColor = TailwindCssColors.violet600
             Text(
                 text = "Lira",
                 fontSize = 40.sp,
                 textAlign = TextAlign.Start,
-                color = if (isLiraSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                color = if (isLiraSelected) selectedLabelColor else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp)
@@ -61,7 +64,7 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                 text = "Euro",
                 fontSize = 40.sp,
                 textAlign = TextAlign.Start,
-                color = if (!isLiraSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                color = if (!isLiraSelected) selectedLabelColor else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp, bottom = 8.dp)
