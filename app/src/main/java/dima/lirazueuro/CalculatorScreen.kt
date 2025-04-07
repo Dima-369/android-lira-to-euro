@@ -39,9 +39,9 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.Start
         ) {
-            val selectedLabelColor = TailwindCssColors.violet600
+            val selectedLabelColor = TailwindCssColors.violet700
             Text(
-                text = "Lira",
+                text = "Lira, TRY, TL, ₺",
                 fontSize = 40.sp,
                 textAlign = TextAlign.Start,
                 color = if (isLiraSelected) selectedLabelColor else MaterialTheme.colorScheme.onSurface,
@@ -58,17 +58,29 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp)
+                    .clickable { isLiraSelected = true }
             )
 
             Text(
-                text = "Euro",
+                text = "Euro, €",
                 fontSize = 40.sp,
                 textAlign = TextAlign.Start,
                 color = if (!isLiraSelected) selectedLabelColor else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp, bottom = 8.dp)
-                    .clickable { isLiraSelected = false }
+                    .clickable {
+                        if (isLiraSelected && input.isNotEmpty()) {
+                            try {
+                                val value = input.toDouble()
+                                val euro = value / 41.6
+                                input = String.format(Locale.US, "%.2f", euro)
+                            } catch (e: NumberFormatException) {
+                                // Keep the current input if conversion fails
+                            }
+                        }
+                        isLiraSelected = false
+                    }
             )
             Text(
                 text = if (input.isNotEmpty()) {
@@ -91,6 +103,7 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp)
+                    .clickable { isLiraSelected = false }
             )
         }
 
