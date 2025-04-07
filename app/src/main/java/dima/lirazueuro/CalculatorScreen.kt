@@ -27,14 +27,18 @@ import java.util.Locale
 
 private val selectedLabelColor = TailwindCssColors.violet700
 
+data class CalculatorState(
+    val isLiraSelected: Boolean = true,
+    val liraAmount: String = "",
+    val euroAmount: String = ""
+)
+
 @Composable
 fun CalculatorScreen(modifier: Modifier = Modifier) {
-    var input by remember { mutableStateOf("") }
-    var isLiraSelected by remember { mutableStateOf(true) }
+    var state by remember { mutableStateOf(CalculatorState()) }
 
     Column(
-        modifier = modifier
-            .fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column(
@@ -44,7 +48,7 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { isLiraSelected = true }
+                    .clickable { state = state.copy(isLiraSelected = true) }
                     .padding(16.dp)
                     .testTag("lira_section")
             ) {
@@ -52,16 +56,16 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                     text = "Lira, TRY, TL, ₺",
                     fontSize = 40.sp,
                     textAlign = TextAlign.Start,
-                    color = if (isLiraSelected) selectedLabelColor else MaterialTheme.colorScheme.onSurface,
+                    color = if (state.isLiraSelected) selectedLabelColor else MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .padding(bottom = 8.dp)
                         .testTag("lira_label")
                 )
                 Text(
-                    text = input.ifEmpty { "0" },
+                    text = state.liraAmount.ifEmpty { "0" },
                     fontSize = 32.sp,
                     textAlign = TextAlign.Start,
-                    color = if (input.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                    color = if (state.liraAmount.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .padding(top = 8.dp)
                         .testTag("lira_value")
@@ -71,22 +75,8 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable {
-                        if (!isLiraSelected) {
-                            /*
-                                                        try {
-                                                            val value = input.toDouble()
-                                                            val lira = value * 41.6
-                                                            input = String.format(Locale.US, "%.2f", lira)
-                                                        } catch (e: NumberFormatException) {
-                                                            // Keep the current input if conversion fails
-                                                        }
-                            */
-                        }
-                        isLiraSelected = false
-                    }
-                    .testTag("euro_section")
-                    ,
+                    .clickable { state = state.copy(isLiraSelected = false) }
+                    .testTag("euro_section"),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(
@@ -98,29 +88,16 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                         text = "Euro, €",
                         fontSize = 40.sp,
                         textAlign = TextAlign.Start,
-                        color = if (!isLiraSelected) selectedLabelColor else MaterialTheme.colorScheme.onSurface,
+                        color = if (!state.isLiraSelected) selectedLabelColor else MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
                             .padding(bottom = 8.dp)
                             .testTag("euro_label")
                     )
                     Text(
-                        text = if (input.isNotEmpty()) {
-                            try {
-                                val value = input.toDouble()
-                                if (isLiraSelected) {
-                                    val euro = value / 41.6
-                                    String.format(Locale.US, "%.2f", euro)
-                                } else {
-                                    val lira = value * 41.6
-                                    String.format(Locale.US, "%.2f", lira)
-                                }
-                            } catch (e: NumberFormatException) {
-                                "Invalid input"
-                            }
-                        } else "0",
+                        text = state.euroAmount.ifEmpty { "0" },
                         fontSize = 32.sp,
                         textAlign = TextAlign.Start,
-                        color = if (input.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                        color = if (state.euroAmount.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
                             .padding(top = 8.dp)
                             .testTag("euro_value")
@@ -135,7 +112,9 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                 .padding(16.dp)
         ) {
             Button(
-                onClick = { input = "" },
+                onClick = { 
+                    state = state.copy(liraAmount = "", euroAmount = "")
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
@@ -153,39 +132,51 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 NumberButton(number = "7", testTag = "button_7") {
-                    if (isLiraSelected) {
-                        input += "7"
+                    if (state.isLiraSelected) {
+                        val newLira = state.liraAmount + "7"
+                        state = state.copy(
+                            liraAmount = newLira,
+                            euroAmount = convertLiraToEuro(newLira)
+                        )
                     } else {
-                        input = try {
-                            val current = if (input.isEmpty()) 0.0 else input.toDouble()
-                            String.format(Locale.US, "%.2f", current * 10 + 7)
-                        } catch (e: NumberFormatException) {
-                            "7"
-                        }
+                        val current = if (state.euroAmount.isEmpty()) 0.0 else state.euroAmount.toDouble()
+                        val newEuro = String.format(Locale.US, "%.2f", current * 10 + 7)
+                        state = state.copy(
+                            euroAmount = newEuro,
+                            liraAmount = convertEuroToLira(newEuro)
+                        )
                     }
                 }
                 NumberButton(number = "8", testTag = "button_8") {
-                    if (isLiraSelected) {
-                        input += "8"
+                    if (state.isLiraSelected) {
+                        val newLira = state.liraAmount + "8"
+                        state = state.copy(
+                            liraAmount = newLira,
+                            euroAmount = convertLiraToEuro(newLira)
+                        )
                     } else {
-                        input = try {
-                            val current = if (input.isEmpty()) 0.0 else input.toDouble()
-                            String.format(Locale.US, "%.2f", current * 10 + 8)
-                        } catch (e: NumberFormatException) {
-                            "8"
-                        }
+                        val current = if (state.euroAmount.isEmpty()) 0.0 else state.euroAmount.toDouble()
+                        val newEuro = String.format(Locale.US, "%.2f", current * 10 + 8)
+                        state = state.copy(
+                            euroAmount = newEuro,
+                            liraAmount = convertEuroToLira(newEuro)
+                        )
                     }
                 }
                 NumberButton(number = "9", testTag = "button_9") {
-                    if (isLiraSelected) {
-                        input += "9"
+                    if (state.isLiraSelected) {
+                        val newLira = state.liraAmount + "9"
+                        state = state.copy(
+                            liraAmount = newLira,
+                            euroAmount = convertLiraToEuro(newLira)
+                        )
                     } else {
-                        input = try {
-                            val current = if (input.isEmpty()) 0.0 else input.toDouble()
-                            String.format(Locale.US, "%.2f", current * 10 + 9)
-                        } catch (e: NumberFormatException) {
-                            "9"
-                        }
+                        val current = if (state.euroAmount.isEmpty()) 0.0 else state.euroAmount.toDouble()
+                        val newEuro = String.format(Locale.US, "%.2f", current * 10 + 9)
+                        state = state.copy(
+                            euroAmount = newEuro,
+                            liraAmount = convertEuroToLira(newEuro)
+                        )
                     }
                 }
             }
@@ -193,17 +184,107 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
-                NumberButton(number = "4", testTag = "button_4") { input += "4" }
-                NumberButton(number = "5", testTag = "button_5") { input += "5" }
-                NumberButton(number = "6", testTag = "button_6") { input += "6" }
+                NumberButton(number = "4", testTag = "button_4") { 
+                    if (state.isLiraSelected) {
+                        val newLira = state.liraAmount + "4"
+                        state = state.copy(
+                            liraAmount = newLira,
+                            euroAmount = convertLiraToEuro(newLira)
+                        )
+                    } else {
+                        val current = if (state.euroAmount.isEmpty()) 0.0 else state.euroAmount.toDouble()
+                        val newEuro = String.format(Locale.US, "%.2f", current * 10 + 4)
+                        state = state.copy(
+                            euroAmount = newEuro,
+                            liraAmount = convertEuroToLira(newEuro)
+                        )
+                    }
+                }
+                NumberButton(number = "5", testTag = "button_5") { 
+                    if (state.isLiraSelected) {
+                        val newLira = state.liraAmount + "5"
+                        state = state.copy(
+                            liraAmount = newLira,
+                            euroAmount = convertLiraToEuro(newLira)
+                        )
+                    } else {
+                        val current = if (state.euroAmount.isEmpty()) 0.0 else state.euroAmount.toDouble()
+                        val newEuro = String.format(Locale.US, "%.2f", current * 10 + 5)
+                        state = state.copy(
+                            euroAmount = newEuro,
+                            liraAmount = convertEuroToLira(newEuro)
+                        )
+                    }
+                }
+                NumberButton(number = "6", testTag = "button_6") { 
+                    if (state.isLiraSelected) {
+                        val newLira = state.liraAmount + "6"
+                        state = state.copy(
+                            liraAmount = newLira,
+                            euroAmount = convertLiraToEuro(newLira)
+                        )
+                    } else {
+                        val current = if (state.euroAmount.isEmpty()) 0.0 else state.euroAmount.toDouble()
+                        val newEuro = String.format(Locale.US, "%.2f", current * 10 + 6)
+                        state = state.copy(
+                            euroAmount = newEuro,
+                            liraAmount = convertEuroToLira(newEuro)
+                        )
+                    }
+                }
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                NumberButton(number = "1", testTag = "button_1") { input += "1" }
-                NumberButton(number = "2", testTag = "button_2") { input += "2" }
-                NumberButton(number = "3", testTag = "button_3") { input += "3" }
+                NumberButton(number = "1", testTag = "button_1") { 
+                    if (state.isLiraSelected) {
+                        val newLira = state.liraAmount + "1"
+                        state = state.copy(
+                            liraAmount = newLira,
+                            euroAmount = convertLiraToEuro(newLira)
+                        )
+                    } else {
+                        val current = if (state.euroAmount.isEmpty()) 0.0 else state.euroAmount.toDouble()
+                        val newEuro = String.format(Locale.US, "%.2f", current * 10 + 1)
+                        state = state.copy(
+                            euroAmount = newEuro,
+                            liraAmount = convertEuroToLira(newEuro)
+                        )
+                    }
+                }
+                NumberButton(number = "2", testTag = "button_2") { 
+                    if (state.isLiraSelected) {
+                        val newLira = state.liraAmount + "2"
+                        state = state.copy(
+                            liraAmount = newLira,
+                            euroAmount = convertLiraToEuro(newLira)
+                        )
+                    } else {
+                        val current = if (state.euroAmount.isEmpty()) 0.0 else state.euroAmount.toDouble()
+                        val newEuro = String.format(Locale.US, "%.2f", current * 10 + 2)
+                        state = state.copy(
+                            euroAmount = newEuro,
+                            liraAmount = convertEuroToLira(newEuro)
+                        )
+                    }
+                }
+                NumberButton(number = "3", testTag = "button_3") { 
+                    if (state.isLiraSelected) {
+                        val newLira = state.liraAmount + "3"
+                        state = state.copy(
+                            liraAmount = newLira,
+                            euroAmount = convertLiraToEuro(newLira)
+                        )
+                    } else {
+                        val current = if (state.euroAmount.isEmpty()) 0.0 else state.euroAmount.toDouble()
+                        val newEuro = String.format(Locale.US, "%.2f", current * 10 + 3)
+                        state = state.copy(
+                            euroAmount = newEuro,
+                            liraAmount = convertEuroToLira(newEuro)
+                        )
+                    }
+                }
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -211,15 +292,19 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
             ) {
                 Button(
                     onClick = {
-                        if (isLiraSelected) {
-                            input += "0"
+                        if (state.isLiraSelected) {
+                            val newLira = state.liraAmount + "0"
+                            state = state.copy(
+                                liraAmount = newLira,
+                                euroAmount = convertLiraToEuro(newLira)
+                            )
                         } else {
-                            input = try {
-                                val current = if (input.isEmpty()) 0.0 else input.toDouble()
-                                String.format(Locale.US, "%.2f", current * 10)
-                            } catch (e: NumberFormatException) {
-                                "0"
-                            }
+                            val current = if (state.euroAmount.isEmpty()) 0.0 else state.euroAmount.toDouble()
+                            val newEuro = String.format(Locale.US, "%.2f", current * 10)
+                            state = state.copy(
+                                euroAmount = newEuro,
+                                liraAmount = convertEuroToLira(newEuro)
+                            )
                         }
                     },
                     modifier = Modifier
@@ -232,8 +317,8 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                 }
                 Button(
                     onClick = {
-                        if (isLiraSelected && !input.contains(".")) {
-                            input += "."
+                        if (state.isLiraSelected && !state.liraAmount.contains(".")) {
+                            state = state.copy(liraAmount = state.liraAmount + ".")
                         }
                     },
                     modifier = Modifier
@@ -246,14 +331,22 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                 }
                 Button(
                     onClick = {
-                        if (isLiraSelected) {
-                            if (input.isNotEmpty()) input = input.dropLast(1)
+                        if (state.isLiraSelected) {
+                            if (state.liraAmount.isNotEmpty()) {
+                                val newLira = state.liraAmount.dropLast(1)
+                                state = state.copy(
+                                    liraAmount = newLira,
+                                    euroAmount = convertLiraToEuro(newLira)
+                                )
+                            }
                         } else {
-                            input = try {
-                                val current = if (input.isEmpty()) 0.0 else input.toDouble()
-                                String.format(Locale.US, "%.2f", current / 10)
-                            } catch (e: NumberFormatException) {
-                                ""
+                            if (state.euroAmount.isNotEmpty()) {
+                                val current = if (state.euroAmount.isEmpty()) 0.0 else state.euroAmount.toDouble()
+                                val newEuro = String.format(Locale.US, "%.2f", current / 10)
+                                state = state.copy(
+                                    euroAmount = newEuro,
+                                    liraAmount = convertEuroToLira(newEuro)
+                                )
                             }
                         }
                     },
@@ -271,5 +364,25 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                 }
             }
         }
+    }
+}
+
+private fun convertLiraToEuro(liraAmount: String): String {
+    return try {
+        val lira = liraAmount.toDouble()
+        val euro = lira / 41.6
+        String.format(Locale.US, "%.2f", euro)
+    } catch (e: NumberFormatException) {
+        ""
+    }
+}
+
+private fun convertEuroToLira(euroAmount: String): String {
+    return try {
+        val euro = euroAmount.toDouble()
+        val lira = euro * 41.6
+        String.format(Locale.US, "%.2f", lira)
+    } catch (e: NumberFormatException) {
+        ""
     }
 }
