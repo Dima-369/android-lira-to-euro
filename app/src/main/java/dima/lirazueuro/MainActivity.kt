@@ -7,10 +7,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -66,9 +67,10 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                     .padding(bottom = 8.dp)
             )
             Text(
-                text = input.ifEmpty { " " },
+                text = input.ifEmpty { "0" },
                 fontSize = 32.sp,
                 textAlign = TextAlign.Start,
+                color = if (input.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp)
@@ -91,9 +93,10 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                     } catch (e: NumberFormatException) {
                         "Invalid input"
                     }
-                } else " ",
+                } else "0",
                 fontSize = 32.sp,
                 textAlign = TextAlign.Start,
+                color = if (input.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp)
@@ -143,22 +146,32 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                NumberButton(number = "0") { input += "0" }
+                Button(
+                    onClick = { input += "0" },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(4.dp)
+                        .height(60.dp)
+                ) {
+                    Text("0", fontSize = 24.sp)
+                }
                 Button(
                     onClick = {
                         if (!input.contains(".")) input += "."
                     },
                     modifier = Modifier
+                        .weight(1f)
                         .padding(4.dp)
-                        .size(width = 80.dp, height = 60.dp)
+                        .height(60.dp)
                 ) {
                     Text(".", fontSize = 24.sp)
                 }
                 Button(
                     onClick = { if (input.isNotEmpty()) input = input.dropLast(1) },
                     modifier = Modifier
+                        .weight(1f)
                         .padding(4.dp)
-                        .size(width = 80.dp, height = 60.dp),
+                        .height(60.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
                         contentColor = MaterialTheme.colorScheme.onError
@@ -172,12 +185,13 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun NumberButton(number: String, onClick: () -> Unit) {
+fun RowScope.NumberButton(number: String, onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = Modifier
+            .weight(1f)
             .padding(4.dp)
-            .size(width = 80.dp, height = 60.dp)
+            .height(60.dp)
     ) {
         Text(number, fontSize = 24.sp)
     }
