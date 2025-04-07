@@ -40,36 +40,35 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.Start
         ) {
             val selectedLabelColor = TailwindCssColors.violet700
-            Text(
-                text = "Lira, TRY, TL, ₺",
-                fontSize = 40.sp,
-                textAlign = TextAlign.Start,
-                color = if (isLiraSelected) selectedLabelColor else MaterialTheme.colorScheme.onSurface,
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp)
-                    .clickable { isLiraSelected = true }
-            )
-            Text(
-                text = input.ifEmpty { "0" },
-                fontSize = 32.sp,
-                textAlign = TextAlign.Start,
-                color = if (input.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp)
-                    .clickable { isLiraSelected = true }
-            )
+                    .clickable { isLiraSelected = true },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "Lira, TRY, TL, ₺",
+                        fontSize = 40.sp,
+                        textAlign = TextAlign.Start,
+                        color = if (isLiraSelected) selectedLabelColor else MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    Text(
+                        text = input.ifEmpty { "0" },
+                        fontSize = 32.sp,
+                        textAlign = TextAlign.Start,
+                        color = if (input.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+            }
 
-            Text(
-                text = "Euro, €",
-                fontSize = 40.sp,
-                textAlign = TextAlign.Start,
-                color = if (!isLiraSelected) selectedLabelColor else MaterialTheme.colorScheme.onSurface,
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 8.dp)
-                    .clickable {
+                    .padding(top = 16.dp)
+                    .clickable { 
                         if (isLiraSelected && input.isNotEmpty()) {
                             try {
                                 val value = input.toDouble()
@@ -79,32 +78,40 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                                 // Keep the current input if conversion fails
                             }
                         }
-                        isLiraSelected = false
-                    }
-            )
-            Text(
-                text = if (input.isNotEmpty()) {
-                    try {
-                        val value = input.toDouble()
-                        if (isLiraSelected) {
-                            val euro = value / 41.6
-                            String.format(Locale.US, "%.2f", euro)
-                        } else {
-                            val lira = value * 41.6
-                            String.format(Locale.US, "%.2f", lira)
-                        }
-                    } catch (e: NumberFormatException) {
-                        "Invalid input"
-                    }
-                } else "0",
-                fontSize = 32.sp,
-                textAlign = TextAlign.Start,
-                color = if (input.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp)
-                    .clickable { isLiraSelected = false }
-            )
+                        isLiraSelected = false 
+                    },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "Euro, €",
+                        fontSize = 40.sp,
+                        textAlign = TextAlign.Start,
+                        color = if (!isLiraSelected) selectedLabelColor else MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    Text(
+                        text = if (input.isNotEmpty()) {
+                            try {
+                                val value = input.toDouble()
+                                if (isLiraSelected) {
+                                    val euro = value / 41.6
+                                    String.format(Locale.US, "%.2f", euro)
+                                } else {
+                                    val lira = value * 41.6
+                                    String.format(Locale.US, "%.2f", lira)
+                                }
+                            } catch (e: NumberFormatException) {
+                                "Invalid input"
+                            }
+                        } else "0",
+                        fontSize = 32.sp,
+                        textAlign = TextAlign.Start,
+                        color = if (input.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+            }
         }
 
         Column(modifier = Modifier.fillMaxWidth()) {
